@@ -1,0 +1,11 @@
+.icon{
+
+    border: 1px solid var(--accent-bg);
+
+}
+.select-div{
+    background-color: var(--color-surface);
+}
+.habit-name{
+    color: black;
+}

@@ -3,6 +3,7 @@ import * as Icons from 'lucide-react';
 import { IoAddOutline } from "react-icons/io5";
 import {IoMdClose} from "react-icons/io";
 import {HabitCard} from "./HabitCard.tsx";
+import "../css/HabitSelector.css";
 interface HabitSelectorProps{
     onClose?: () => void;
 }
@@ -31,25 +32,30 @@ export function HabitSelector({onClose}: HabitSelectorProps){
         }}
         fetchTemplates();
     },[])
-    return(
-        <div className={"transition-all duration-300 ease-in-out"}>
 
-            {habitTemplates.map((template)=>{
-                const IconComponent = (Icons as any)[template.iconName] || Icons.HelpCircle;
-                return (
-                    <div key={template.id}>
-                        {selectedTemplate !== template.id ? (
-                            <div  className=" flex max-w-20 md:max-w-100 w-full h-6" onClick={() => {
-                                setSelectedTemplate(template.id);
-                                setOpenNewHabit(false);
-                            }}>
-                                <IconComponent className="w-5 h-5 text-blue-600" />
-                                <p>{template.title}</p>
-                            </div>):(
+    return(
+        <div className={"select-div shadow-lg w-full max-w-60 md:max-w-80 flex flex-col gap-1 rounded-xl"}>
+            <h2 className={"text-2xl"}>Add a Habit</h2>
+            <div className={"overflow-scroll overflow-x-hidden"}>
+                {habitTemplates.map((template)=>{
+                    const IconComponent = (Icons as any)[template.iconName] || Icons.HelpCircle;
+                    return (
+                        <div key={template.id}>
+                            {selectedTemplate !== template.id ? (
+                                <div  className="template-div m-2 transition-all duration-200 ease-in-out flex max-w-40 md:max-w-70 w-full  hover:bg-gray-300 rounded-xl items-center" onClick={() => {
+                                    setSelectedTemplate(template.id);
+                                    setOpenNewHabit(false);
+                                }}>
+                                    <div className={"icon m-2 p-2 rounded-full flex shrink-0 items-center justify-center"}>
+                                        <IconComponent className=" w-7 h-7 text-blue-600" />
+                                    </div>
+
+                                    <p className={"habit-name text-xl"}>{template.title}</p>
+                                </div>):(
                                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" >
 
-                                    {/* 2. The actual modal box */}
-                                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900" >
+
+                                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 " >
                                         <HabitCard   name={template.title} iconName ={template.iconName} frequencySet={template.default_frequency} color={""} />
 
                                         <button
@@ -60,22 +66,26 @@ export function HabitSelector({onClose}: HabitSelectorProps){
                                     </div>
 
                                 </div>)
-                        }
-                    </div>
-                )
-            })}
-            {!openNewHabit? (<div className=" flex max-w-20 md:max-w-100 w-full h-6"  onClick={() => {
+                            }
+                        </div>
+                    )
+                })}
+            </div>
+
+            {!openNewHabit? (<div className="m-2 flex max-w-40 md:max-w-70 w-full  hover:bg-gray-300 rounded-xl items-center"  onClick={() => {
                 setOpenNewHabit(true);
                 setSelectedTemplate(null);
             }}>
+                <div className={"icon m-2 p-2 rounded-full flex shrink-0 items-center justify-center"}>
+                    <IoAddOutline className={"w-7 h-7"} color={"black"}/>
+                </div>
 
-                <IoAddOutline/>
-                <p>Add a new habit</p>
+                <p className={"habit-name text-xl"}>Add a new habit</p>
 
             </div>):((
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
 
-            {/* 2. The actual modal box */}
+
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900" >
                 <HabitCard  name={""} iconName={""} frequencySet={""} color={""}/>
 
@@ -92,13 +102,16 @@ export function HabitSelector({onClose}: HabitSelectorProps){
 
             )}
             {(!selectedTemplate && !openNewHabit) && (
-                <button
-                    onClick={onClose}
-                    className="mt-4 rounded bg-gray-200 px-4 py-2 text-black dark:bg-zinc-800 dark:text-white"
-                >
-                    <IoMdClose/>
+                <div className={"flex items-center justify-center m-2"}>
+                    <button
+                        onClick={onClose}
+                        className="flex items-center justify-center  max-w-10 animate-in fade-in zoom-in-95 duration-200 mt-4 rounded bg-gray-200 p-2.5 text-black dark:bg-zinc-800 dark:text-white"
+                    >
+                        <IoMdClose/>
 
-                </button>
+                    </button>
+                </div>
+
             )}
 
         </div>
