@@ -5,10 +5,9 @@ import {useAuth} from "../context/AuthContext.tsx";
 export function LoginPage(){
     const navigate = useNavigate();
     const [userData,setUserData]=useState<{
-        username:string,
         email: string,
         password: string,
-    }>({username:'', email:'', password:''});
+    }>({ email:'', password:''});
     const [errors, setErrors] = useState<{username:string,email:string,password:string}>({username:"", email: "",password:""});
     const {login} = useAuth();
     const handleSubmit = async (e:{preventDefault:()=>void}) => {
@@ -30,7 +29,7 @@ export function LoginPage(){
                         return;
                     }
                     login(data.user,data.token);
-                    navigate('/',{replace:true, state:{username:userData.username}});
+                    navigate('/',{replace:true, state:{username:data.user.username}});
                 } else {
                     alert("Failed to send form");
                 }
@@ -47,10 +46,10 @@ export function LoginPage(){
     const validate = ()=>{
         let tempErrors = {username:'', email:'', password:''};
         let isValid = true;
-        if(!userData.username){
-            isValid=false;
-            tempErrors.username = "Username is required";
-        }
+        // if(!userData.username){
+        //     isValid=false;
+        //     tempErrors.username = "Username is required";
+        // }
         if(!userData.email){
             isValid=false;
             tempErrors.email = "Email is required";
@@ -64,10 +63,10 @@ export function LoginPage(){
             tempErrors.email = "Email is not valid";
             isValid = false;
         }
-        if(userData.username.length < 5 || userData.username.length > 10){
-            isValid=false;
-            tempErrors.username = "Username invalid length";
-        }
+        // if(userData.username.length < 5 || userData.username.length > 10){
+        //     isValid=false;
+        //     tempErrors.username = "Username invalid length";
+        // }
         if(userData.password.length < 8){
             isValid=false;
             tempErrors.password = "Password is too short";
@@ -82,19 +81,19 @@ export function LoginPage(){
         <div>
             <h3>Login</h3>
             <form onSubmit={handleSubmit} >
-                <label>Username <input type={"text"}value={userData.username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
-                    ...userData,
-                    username: e.target.value
-                })}></input>
-                    {errors.username && (<p className={"error-p"}>{errors.username}</p>)}
-                </label>
+                {/*<label>Username <input type={"text"}value={userData.username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({*/}
+                {/*    ...userData,*/}
+                {/*    username: e.target.value*/}
+                {/*})}></input>*/}
+                {/*    {errors.username && (<p className={"error-p"}>{errors.username}</p>)}*/}
+                {/*</label>*/}
                 <label>Email <input type={"text"}value={userData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     email: e.target.value
                 })}></input>
                     {errors.email && (<p className={"error-p"}>{errors.email}</p>)}
                 </label>
-                <label>Password <input type={"text"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
+                <label>Password <input type={"password"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     password: e.target.value
                 })}></input>

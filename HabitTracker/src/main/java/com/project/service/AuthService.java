@@ -6,6 +6,7 @@ import com.project.dto.RegisterRequest;
 import com.project.dto.UserResponse;
 import com.project.model.User;
 import com.project.repository.UserRepository;
+import com.project.security.CustomUserDetails;
 import com.project.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,10 +56,32 @@ public class AuthService {
 
     }
     public JwtResponse authenticateUser(LoginRequest loginRequest){
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt =  tokenProvider.generateToken(authentication);
-        UserResponse userResponse = new UserResponse(loginRequest.getUsername(), loginRequest.getEmail());
-        return new JwtResponse(jwt,userResponse);
+        System.out.println(loginRequest);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+
+            System.out.println("Authentication successful: " + authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+
+            String actualUsername = userDetails.getUser().getUsername();
+
+
+            UserResponse userResponse = new UserResponse(actualUsername, loginRequest.getEmail());
+
+            return new JwtResponse(jwt, userResponse);
+
+        } catch (Exception e) {
+            System.err.println("AUTHENTICATION FAILED: " + e.getMessage());
+            e.printStackTrace(); // This will print the full stack trace to your console
+            throw new RuntimeException("Invalid email or password");
+        }
     }
 }

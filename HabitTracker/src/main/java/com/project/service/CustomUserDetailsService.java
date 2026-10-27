@@ -2,6 +2,7 @@ package com.project.service;
 
 import com.project.model.User;
 import com.project.repository.UserRepository;
+import com.project.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,10 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.emptyList() // Add roles/authorities here if needed later
-        );
+        return new CustomUserDetails(user); // Or return Spring's built-in User object
     }
 }

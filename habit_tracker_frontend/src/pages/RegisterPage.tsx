@@ -95,7 +95,7 @@ export function RegisterPage(){
                 })}></input>
                     {errors.email && (<p className={"error-p"}>{errors.email}</p>)}
                 </label>
-                <label>Password <input type={"text"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
+                <label>Password <input type={"password"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     password: e.target.value
                 })}></input>

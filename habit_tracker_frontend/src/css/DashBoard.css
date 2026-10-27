@@ -1,8 +1,18 @@
 .section-div{
     background-color: var(--color-surface);
+    padding: 0.5rem;
 
 }
 .section-div:hover{
     background-color: var(--color-accent);
     transform:scale(1.1);
+}
+.submit{
+    background-color: var(--color-primary);
+}
+.submit:hover{
+    background-color: var(--color-primary-hover);
+}
+.recent-habit{
+    background-color: var(--color-bg);
 }

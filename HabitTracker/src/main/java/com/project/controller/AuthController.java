@@ -11,19 +11,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 
-
+@RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
-    @PostMapping("/api/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest registerRequest) {
 
         return new ResponseEntity<>(authService.registerUser(registerRequest), HttpStatus.OK);
     }
-    @PostMapping("/api/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("--> Hit AuthController login endpoint with email: " + loginRequest.getEmail());
         return new ResponseEntity<>(authService.authenticateUser(loginRequest), HttpStatus.OK);
     }
 }
