@@ -61,6 +61,7 @@ export function HabitCard({name: initialName, iconName, frequencySet, color, onH
 
         try {
             const token = localStorage.getItem("token");
+            console.log(habitData);
             const response = await fetch("http://localhost:8080/api/habits", {
                 method: 'POST',
                 headers: {
