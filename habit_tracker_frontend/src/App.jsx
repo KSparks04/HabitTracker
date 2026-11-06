@@ -9,6 +9,7 @@ import { useAuth } from './context/AuthContext';
 import {LoginPage} from "./pages/LoginPage.tsx";
 import {Bounce, ToastContainer} from "react-toastify";
 import {MyHabitsPage} from "./pages/MyHabitsPage.tsx";
+import {StatsPage} from "./pages/StatsPage.tsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -38,6 +39,7 @@ function App() {
             />
             <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to="/" />} />
             <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
+            <Route path="/my-stats" element={<StatsPage />} />
             <Route path={"/my-habits"} element={<MyHabitsPage />} />
         </Routes>
 

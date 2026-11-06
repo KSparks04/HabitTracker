@@ -23,7 +23,7 @@ export function NavBar(){
 
             <NavLink className={"nav-elem"} to={"/"}>Dashboard</NavLink>
             {!user && <NavLink className={"nav-elem"} to={"/register"}>Register</NavLink>}
-            <NavLink className={"nav-elem"} to={"/stats"}>Habit Stats</NavLink>
+            <NavLink className={"nav-elem"} to={"/my-stats"}>Habit Stats</NavLink>
             {/*<NavLink className={"nav-elem"} to={"/login"}>Login</NavLink>*/}
             <div className={"relative inline-block"} onClick={()=>{setOpen(!isOpen)}}><MdOutlineAccountCircle color={"black"} className={"w-5 h-5"} />
             {isOpen &&

@@ -87,19 +87,19 @@ export function RegisterPage(){
                     ...userData,
                     username: e.target.value
                 })}></input>
-                    {errors.username && (<p className={"error-p"}>{errors.username}</p>)}
+                    {errors.username && (<p className={"error-p text-red-500 text-xs italic"}>{errors.username}</p>)}
                 </label>
                 <label>Email <input type={"text"}value={userData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     email: e.target.value
                 })}></input>
-                    {errors.email && (<p className={"error-p"}>{errors.email}</p>)}
+                    {errors.email && (<p className={"error-p text-red-500 text-xs italic"}>{errors.email}</p>)}
                 </label>
                 <label>Password <input type={"password"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     password: e.target.value
                 })}></input>
-                    {errors.password && (<p className={"error-p"}>{errors.password}</p>)}
+                    {errors.password && (<p className={"error-p text-red-500 text-xs italic"}>{errors.password}</p>)}
                 </label>
                 <button type="submit">Register</button>
             </form>

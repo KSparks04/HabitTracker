@@ -184,13 +184,13 @@ export function DashboardPage(){
                         <h3 className={"text-2xl"}>Recent Habits</h3>
                         <div className={"flex flex-col items-center justify-center max-w-2xs md:max-w-xs w-full"}>
                             {recentHabits.map(habitData =>{
-                                const IconComponent = (Icons as any)[habitData.habit.iconName] || Icons.HelpCircle;
+                                const IconComponent = (Icons as any)[habitData.iconName] || Icons.HelpCircle;
                                 return (
-                                    <div key={habitData.habit.id} className={"recent-habit w-full rounded-xl max-w-2xs md:max-w-xs flex flex-col md:flex-row items-center justify-center"}>
+                                    <div key={habitData.id} className={"recent-habit w-full rounded-xl max-w-2xs md:max-w-xs flex flex-col md:flex-row items-center justify-center"}>
                                         <div className={"icon m-2 p-2 rounded-full flex shrink-0 items-center justify-center"}>
                                             <IconComponent className=" w-7 h-7 text-blue-600" />
                                         </div>
-                                        <p>{habitData.habit.title}</p>
+                                        <p>{habitData.title}</p>
 
                                     </div>
                                 )
