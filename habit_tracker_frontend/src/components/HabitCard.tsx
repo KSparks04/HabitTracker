@@ -79,6 +79,7 @@ export function HabitCard({name: initialName, iconName, frequencySet, color, onH
                 notify(`${data.title} Successfully Created!`);
                 onHabitCreated(data);
                 navigate('/', {replace: true});
+                window.location.reload();
 
 
                 return;

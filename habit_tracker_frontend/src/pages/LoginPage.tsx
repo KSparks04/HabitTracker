@@ -50,6 +50,7 @@ export function LoginPage(){
         //     isValid=false;
         //     tempErrors.username = "Username is required";
         // }
+        userData.email = userData.email.toLowerCase();
         if(!userData.email){
             isValid=false;
             tempErrors.email = "Email is required";

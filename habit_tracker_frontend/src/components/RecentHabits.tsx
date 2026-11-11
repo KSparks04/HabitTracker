@@ -5,14 +5,21 @@ import {useEffect, useState} from "react";
 import * as Icons from "lucide-react";
 import {CiCircleInfo} from "react-icons/ci";
 import {IoMdClose} from "react-icons/io";
+import {toast} from "react-toastify";
+import {createPortal} from "react-dom";
 
 export function RecentHabits(){
     const [habits, setHabits]=useState([]);
     const [showConfetti, setShowConfetti] = useState(false);
     // const [showNotes, setShowNotes]=useState(false);
     // const [notesModal, setNotesModal] = useState(false);
-    const[selectedHabit,setSelectedHabit]=useState<string | null>(null);
+    const [notes,setNotes]=useState("");
+
+    const[selectedHabitId,setSelectedHabitId]=useState<string | null>(null);
+    const selectedHabit = habits.find(h => h.id === selectedHabitId);
+    const SelectedIconComponent = selectedHabit ? ((Icons as any)[selectedHabit.iconName] || Icons.HelpCircle) : null;
     const today = new Date();
+    const todayString = format(today, 'yyyy-MM-dd');
     const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 0 });
     const weekDays = Array.from({ length: 7 }).map((_, index) => {
         const date = addDays(startOfCurrentWeek, index);
@@ -33,6 +40,7 @@ export function RecentHabits(){
             "Is selected date completed:",
             habit?.completedDates.includes(isoString)
         );
+
         setHabits(prev => prev.map(habit => {
             if (habit.id !== habitId) return habit;
             const exists = habit.completedDates.includes(isoString);
@@ -55,6 +63,7 @@ export function RecentHabits(){
                 console.error("Failed to sync toggle with backend");
                 // Optional: Revert UI state here if the request failed
             }
+
         } catch (err) {
             console.error("Network error during toggle:", err);
         }
@@ -98,7 +107,50 @@ export function RecentHabits(){
         return () => clearTimeout(timer);
     }, [showConfetti]);
 
+    const handleSubmit = async e => {
+        e.preventDefault();
+        const habitData = {
 
+            note:notes,
+            habitId:selectedHabitId
+
+
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            console.log(habitData);
+            const response = await fetch("/api/habits/logs/notes", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(habitData),
+            });
+            const notify = (msg: string) => toast(msg);
+            if (response.ok) {
+
+                // const data = await response.json();
+
+
+                notify(`Note Successfully Added!`);
+
+
+
+                return;
+
+
+            } else {
+                notify("Habit could not be created!");
+
+
+            }
+        } catch (err) {
+            console.error("Network error:", err);
+            alert("Could not connect to the backend server.");
+        }
+    }
 
 
     return (
@@ -122,11 +174,12 @@ export function RecentHabits(){
               Sun - Sat View
             </span>
             </div>
-            <div className={"overflow-scroll overflow-x-hidden scrollbar-thin"}>
+            <div className={"overflow-scroll overflow-x-hidden scrollbar-thin max-h-[calc(100vh-200px)] overflow-y-auto"}>
                 {habits.map(habit => {
-                    const IconComponent = (Icons as any)[habit.iconName] || Icons.HelpCircle;
+
                     return (
-                    <div key={habit.id} className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-lg backdrop-blur">
+                    <div key={habit.id} className=" bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-lg backdrop-blur">
+
                         <div className="flex justify-between items-center mb-3">
                             <h3 className="font-semibold text-slate-200">{habit.title}</h3>
                             <div className="flex items-center space-x-1 text-amber-400 text-xs font-semibold bg-amber-400/10 px-2.5 py-1 rounded-md">
@@ -137,42 +190,17 @@ export function RecentHabits(){
 
 
                         <div className="grid grid-cols-7 gap-2 text-center">
-                            {selectedHabit == habit.id && <div className={"fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"}>
-                                <div className={"w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 "}>
-                                    <h3>Add Notes</h3>
-                                    <div>
-                                        <IconComponent/>
-                                        <p>{habit.title}</p>
-                                    </div>
 
-
-                                    <form>
-                                        <input type={"hidden"} value={habit.id}/>
-                                        <div className={"flex"}>
-                                            <p>Notes</p>
-                                            <CiCircleInfo />
-                                        </div>
-                                        <input type={"textarea"} />
-                                    </form>
-                                    <button
-                                        onClick={() => setSelectedHabit(null)}
-                                        className="mt-4 rounded bg-gray-200 px-4 py-2 text-black dark:bg-zinc-800 dark:text-white"
-                                    >
-                                        <IoMdClose/>
-
-                                    </button>
-
-                                </div>
-                            </div>}
                             {weekDays.map(day => {
                                 const isCompleted = habit.completedDates.includes(day.isoString);
+
 
                                 return (
                                     <div key={`${habit.id}-${day.isoString}`} className="flex flex-col items-center">
                                     <span className={`text-[11px] font-medium mb-1 ${day.isToday ? 'text-indigo-400 font-bold' : 'text-slate-400'}`}>
                         {day.dayName}</span>
                                         <button
-                                            onClick={() => {toggleDate(habit.id, day.isoString); if(!isCompleted){setShowConfetti(true);setSelectedHabit(habit.id);}}}
+                                            onClick={() => {toggleDate(habit.id, day.isoString); if(!isCompleted){setShowConfetti(true);}}}
                                             className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 border ${
                                                 isCompleted
                                                     ? 'bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-500/20 scale-100'
@@ -195,12 +223,42 @@ export function RecentHabits(){
 
                         </div>
 
-                        <button className={"max-w-xs w-full"} onClick={()=>setSelectedHabit(habit.id)}>Add Notes</button>
+                        {habit?.completedDates.includes(todayString)&&
+                           <button className={"max-w-xs w-full"} onClick={()=>setSelectedHabitId(habit.id)}>Add Notes</button>}
                     </div>)
                 })}
 
 
+
             </div>
+            {selectedHabit && createPortal( (<div className={"fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"}>
+                <div className={"w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900 "}>
+                    <h3>Add Notes</h3>
+                    <div>
+                        <SelectedIconComponent/>
+                        <p>{selectedHabit.title}</p>
+                    </div>
+
+
+                    <form onSubmit={handleSubmit}>
+
+                        <div className={"flex"}>
+                            <p>Notes</p>
+                            <CiCircleInfo />
+                        </div>
+                        <textarea className={"bg-white"}  rows={4} cols={40} onChange={(e)=>{setNotes(e.target.value)}} ></textarea>
+                        <button type="submit">Save Note</button>
+                    </form>
+                    <button
+                        onClick={() => setSelectedHabitId(null)}
+                        className="mt-4 rounded bg-gray-200 px-4 py-2 text-black dark:bg-zinc-800 dark:text-white"
+                    >
+                        <IoMdClose/>
+
+                    </button>
+
+                </div>
+            </div>),document.body)}
 
 
         </div>)
