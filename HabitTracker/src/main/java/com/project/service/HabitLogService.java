@@ -10,13 +10,17 @@ import com.project.repository.HabitLogRepository;
 import com.project.repository.HabitRepository;
 import com.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,6 +66,44 @@ public class HabitLogService {
         return habitDto;
 
     }
+    public void addLogNote(HabitLogDto habitLogDto, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User does not exist"));
+        if (habitLogDto.getHabitId() == null) {
+            throw new IllegalArgumentException("Habit ID must not be null");
+        }
+        List<HabitLog> log = habitLogRepository.findLatestLogsForHabit(habitLogDto.getHabitId(),PageRequest.of(0,1));
+        HabitLog existingLog = log.get(0);
+
+        if (existingLog != null) {
+
+
+            existingLog.setNotes(habitLogDto.getNote());
+            habitLogRepository.save(existingLog);
+        } else {
+            throw new IllegalArgumentException("Habit Log with id " + habitLogDto.getId() + " does not exist");
+        }
+
+    }
+    public List<HabitLogDto> getRecentHabits(Long userId){
+        List<HabitLog> logs =
+                habitLogRepository.findLatestLogPerHabitByUserId(
+                        userId,
+                        PageRequest.of(0, 5)
+                );
+        List<HabitLogDto> responseDtos =  new ArrayList<>();
+        for (HabitLog habitLog : logs) {
+            HabitLogDto habitLogDto = new HabitLogDto();
+            habitLogDto.setHabitId(habitLog.getId());
+            habitLogDto.setCompletedDate(habitLog.getCompletedDate());
+            habitLogDto.setTitle(habitLog.getHabit().getTitle());
+            habitLogDto.setIconName(habitLog.getHabit().getIconName());
+            habitLogDto.setFrequency(habitLog.getHabit().getFrequency());
+            responseDtos.add(habitLogDto);
+        }
+        return responseDtos;
+
+    }
     public void toggleLogForDate(String userEmail,Long habitId,String dateString){
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
@@ -70,11 +112,21 @@ public class HabitLogService {
         if (!habit.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized to modify this habit");
         }
+        System.out.println(habitId);
 
         LocalDate localDate = LocalDate.parse(dateString);
+
         LocalDateTime startOfDay = localDate.atStartOfDay();
-        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
-        Optional<HabitLog> existingLog = habitLogRepository.findByHabitIdAndCompletedDateBetween(habitId, startOfDay, endOfDay);
+        LocalDateTime nextDay = localDate.plusDays(1).atStartOfDay();
+
+        Optional<HabitLog> existingLog =
+                habitLogRepository.findLogForDate(
+                        habitId,
+                        startOfDay,
+                        nextDay
+                );
+
+
         if (existingLog.isPresent()) {
 
             habitLogRepository.delete(existingLog.get());
@@ -97,7 +149,7 @@ public class HabitLogService {
             dto.setTitle(habit.getTitle());
             dto.setStreak(calculateCurrentStreak(habit.getId())); // Your streak method!
 
-            // Filter logs belonging to this specific habit and convert to "YYYY-MM-DD" strings
+
             List<String> completedDates = logs.stream()
                     .filter(log -> log.getHabit().getId().equals(habit.getId()))
                     .map(log -> log.getCompletedDate().toLocalDate().toString())
@@ -108,58 +160,141 @@ public class HabitLogService {
         }
         return  responseDtos;
     }
+
+    public List<HabitLogDto> getHabitsLogsWeek(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Habit> habits = habitRepository.findByUserId(userId);
+
+        List<HabitLog> logs = habitLogRepository.findByHabit_User_IdAndCompletedDateBetween(userId, startDate, endDate);
+        List<HabitLogDto> responseDtos = new ArrayList<>();
+        for (Habit habit : habits) {
+            HabitLogDto dto = new HabitLogDto();
+            dto.setId(habit.getId());
+            dto.setTitle(habit.getTitle());
+            dto.setStreak(calculateDaysOutofWeeks(habit.getId())); // Your streak method!
+            dto.setIconName(habit.getIconName());
+            List<String> completedDates = logs.stream()
+                    .filter(log -> log.getHabit().getId().equals(habit.getId()))
+                    .map(log -> log.getCompletedDate().toLocalDate().toString())
+                    .collect(Collectors.toList());
+
+
+            responseDtos.add(dto);
+        }
+        return  responseDtos;
+    }
+    public List<HabitLogDto> getLongestHabits(Long userId){
+        List<HabitLog> logs =
+                habitLogRepository.findLatestLogPerHabitByUserId(
+                        userId,
+                        PageRequest.of(0, 5)
+                );
+        List<HabitLogDto> responseDtos =  new ArrayList<>();
+        for (HabitLog habitLog : logs) {
+            HabitLogDto habitLogDto = new HabitLogDto();
+            habitLogDto.setHabitId(habitLog.getId());
+            habitLogDto.setCompletedDate(habitLog.getCompletedDate());
+            habitLogDto.setTitle(habitLog.getHabit().getTitle());
+            habitLogDto.setIconName(habitLog.getHabit().getIconName());
+            habitLogDto.setFrequency(habitLog.getHabit().getFrequency());
+            int streak = calculateLongestStreak(habitLog.getHabit().getId());
+            habitLogDto.setLongestStreak(streak);
+            responseDtos.add(habitLogDto);
+        }
+        return responseDtos;
+
+    }
+
+    public int calculateDaysOutofWeeks(Long habitDtoId){
+        List<HabitLog> logs =
+                habitLogRepository.findByHabitIdOrderByCompletedDateDesc(habitDtoId);
+
+        if (logs.isEmpty()) {
+            return 0;
+        }
+
+        List<LocalDate> dates = logs.stream()
+                .map(log -> log.getCompletedDate().toLocalDate())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+
+        LocalDate today = LocalDate.now();
+        DayOfWeek weekStart = DayOfWeek.SUNDAY;
+
+        LocalDate startDate =  today.with(TemporalAdjusters.previousOrSame(weekStart));
+        LocalDate endDate = startDate.plusDays(6);
+
+
+        return (int) logs.stream()
+                .map(log -> log.getCompletedDate().toLocalDate())
+                .distinct()
+                .filter(date -> !date.isBefore(startDate))
+                .filter(date -> !date.isAfter(endDate))
+                .count();
+    }
     public int calculateLongestStreak(Long habitDtoId){
         List<HabitLog> logs = habitLogRepository.findByHabitIdOrderByCompletedDateDesc(habitDtoId);
         if(logs.isEmpty()){return 0;}
-        int maxStreak = 0;
-        int currentStreak = 0;
-        LocalDate expectedDate = null;
+        List<LocalDate> dates = logs.stream()
+                .map(log -> log.getCompletedDate().toLocalDate())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
 
-        if (!logs.get(0).getCompletedDate().toLocalDate().equals(expectedDate)) {
-            expectedDate = expectedDate.minusDays(1);
-        }
-        for (HabitLog habitLog : logs) {
-            LocalDate logDate = habitLog.getCompletedDate().toLocalDate();
-            if (expectedDate == null) {
+        int currentStreak = 1;
+        int maxStreak = 1;
 
-                currentStreak = 1;
-                expectedDate = logDate.minusDays(1);
-            } else if (logDate.equals(expectedDate)) {
+        for (int i = 1; i < dates.size(); i++) {
 
+            LocalDate previousDate = dates.get(i - 1);
+            LocalDate currentDate = dates.get(i);
+
+            if (currentDate.equals(previousDate.minusDays(1))) {
                 currentStreak++;
-                expectedDate = expectedDate.minusDays(1);
-            } else if (logDate.equals(expectedDate.plusDays(1))) {
-
-                continue;
             } else {
-
-                maxStreak = Math.max(maxStreak, currentStreak);
                 currentStreak = 1;
-                expectedDate = logDate.minusDays(1);
             }
+
+            maxStreak = Math.max(maxStreak, currentStreak);
         }
-        return Math.max(maxStreak, currentStreak);
+
+        return maxStreak;
 
     }
     public int calculateCurrentStreak(Long habitDtoId){
-        List<HabitLog> logs = habitLogRepository.findByHabitIdOrderByCompletedDateDesc(habitDtoId);
-        if(logs.isEmpty()){return 0;}
-        int streak = 0;
-        LocalDate expectedDate = LocalDate.now();
-        if (!logs.get(0).getCompletedDate().toLocalDate().equals(expectedDate)) {
-            expectedDate = expectedDate.minusDays(1);
+        List<HabitLog> logs =
+                habitLogRepository.findByHabitIdOrderByCompletedDateDesc(habitDtoId);
+
+        if (logs.isEmpty()) {
+            return 0;
         }
-        for (HabitLog habitLog : logs) {
-            LocalDate logDate = habitLog.getCompletedDate().toLocalDate();
-            if (logDate.equals(expectedDate)) {
+
+        List<LocalDate> dates = logs.stream()
+                .map(log -> log.getCompletedDate().toLocalDate())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+
+        LocalDate today = LocalDate.now();
+        LocalDate expectedDate = dates.get(0);
+        if (expectedDate.isBefore(today)) {
+            if (!expectedDate.equals(today.minusDays(1))) {
+                return 0;
+            }
+        }
+
+        int streak = 0;
+
+        for (LocalDate date : dates) {
+
+            if (date.equals(expectedDate)) {
                 streak++;
                 expectedDate = expectedDate.minusDays(1);
-            }
-            else if (logDate.isBefore(expectedDate)) {
-
+            } else {
                 break;
             }
         }
+
         return streak;
 
     }

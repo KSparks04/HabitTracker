@@ -7,6 +7,7 @@ import com.project.model.User;
 import com.project.repository.HabitLogRepository;
 import com.project.repository.HabitRepository;
 import com.project.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ public class HabitService {
             habitDto.setFrequency(habit.getFrequency());
             habitDto.setNotes(habit.getNotes());
             habitDto.setColor(habit.getColor());
+            habitDto.setIconName(habit.getIconName());
             habitDtos.add(habitDto);
         }
         return  habitDtos;
@@ -52,7 +54,7 @@ public class HabitService {
         habitRepository.save(habit);
         return  habitDto;
     }
-    public HabitDto updateHabitForUser(Long id,HabitDto habitDto, String email){
+    public HabitDto updateHabitForUser(HabitDto habitDto, String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
         Habit habit = habitRepository.findById(habitDto.getId()).get();
@@ -64,12 +66,15 @@ public class HabitService {
         habitRepository.save(habit);
         return  habitDto;
     }
+    @Transactional
     public String deleteHabitForUser(Long id,String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
 
         Habit habit = habitRepository.findById(id).get();
+        habitLogRepository.deleteByHabitId(habit.getId());
         habitRepository.delete(habit);
+
         return  "Habit deleted successfully";
     }
     public HabitDto toggleHabitLog(HabitDto habitDto, String email){

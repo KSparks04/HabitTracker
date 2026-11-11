@@ -32,10 +32,10 @@ public class HabitController {
         return  new ResponseEntity<>(habit, HttpStatus.CREATED);
 
     }
-    @PutMapping("/api/habits/{id}")
-    public ResponseEntity<HabitDto> updateUserHabit(@PathVariable Long id, @RequestBody HabitDto habitDto, Principal principal) {
+    @PutMapping("/api/habits")
+    public ResponseEntity<HabitDto> updateUserHabit(@RequestBody HabitDto habitDto, Principal principal) {
         String userEmail = principal.getName();
-        HabitDto habit = habitService.updateHabitForUser(id,habitDto, userEmail);
+        HabitDto habit = habitService.updateHabitForUser(habitDto, userEmail);
         return  new ResponseEntity<>(habit, HttpStatus.OK);
     }
     @DeleteMapping("/api/habits/{id}")

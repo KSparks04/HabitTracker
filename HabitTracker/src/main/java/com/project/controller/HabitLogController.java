@@ -42,10 +42,10 @@ public class HabitLogController {
         return new ResponseEntity<>(habits, HttpStatus.OK);
     }
     @GetMapping("/api/habit/logs/recent")
-    public ResponseEntity<List<HabitLog>>  getRecentHabitLogs(Principal principal) {
+    public ResponseEntity<List<HabitLogDto>>  getRecentHabitLogs(Principal principal) {
         String userEmail = principal.getName();
         Optional<User> user  = userRepository.findByEmail(userEmail);
-        List <HabitLog> logs = habitLogRepository.findTop5ByHabit_User_IdOrderByCompletedDateDesc(user.get().getId());
+        List <HabitLogDto> logs = habitLogService.getRecentHabits(user.get().getId());
         return new ResponseEntity<>(logs,HttpStatus.OK);
     }
     @GetMapping("/api/habit/logs/current-streak")
@@ -53,6 +53,13 @@ public class HabitLogController {
         String userEmail = principal.getName();
         int currentStreak = habitLogService.calculateCurrentStreak(habitLogDto.getHabitId());
         return new ResponseEntity<>(currentStreak,HttpStatus.OK);
+    }
+    @GetMapping("/api/habit/logs/longest-streak")
+    public ResponseEntity<List<HabitLogDto>> getLongestHabitLogs(Principal principal) {
+        String userEmail = principal.getName();
+        Optional<User> user  = userRepository.findByEmail(userEmail);
+        List<HabitLogDto> logs= habitLogService.getLongestHabits(user.get().getId());
+        return new ResponseEntity<>(logs,HttpStatus.OK);
     }
     @GetMapping("/api/habit/logs/{habitId}")
     public ResponseEntity<List<HabitLog>> getLogsForDateRange(@PathVariable Long habitId,@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate){
@@ -66,11 +73,24 @@ public class HabitLogController {
         List<HabitWeeklyDto> logs = habitLogService.getHabitsAndLogs(user.get().getId(), startDate,endDate);
         return new ResponseEntity<>(logs,HttpStatus.OK);
     }
+    @GetMapping("/api/habits/week/completed")
+    public ResponseEntity<List<HabitLogDto>> getHabitsWeek(Principal principal,@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate){
+        String userEmail = principal.getName();
+        Optional<User> user  = userRepository.findByEmail(userEmail);
+        List<HabitLogDto> logs = habitLogService.getHabitsLogsWeek(user.get().getId(),  startDate,endDate);
+        return new ResponseEntity<>(logs,HttpStatus.OK);
+    }
     @PostMapping("/api/habits/logs/{habitId}/toggle")
     public ResponseEntity<Void> updateUserHabitLogs(Principal principal,@PathVariable Long habitId,@RequestParam String date){
         String userEmail = principal.getName();
         habitLogService.toggleLogForDate(userEmail,habitId,date);
         return ResponseEntity.ok().build();
+    }
+    @PostMapping("/api/habits/logs/notes")
+    public ResponseEntity<Void> addNotes(Principal principal, @RequestBody HabitLogDto habitLogDto){
+        String userEmail = principal.getName();
+        habitLogService.addLogNote(habitLogDto,userEmail);
+        return  ResponseEntity.ok().build();
     }
 
 }

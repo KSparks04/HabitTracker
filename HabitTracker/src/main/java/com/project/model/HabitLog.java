@@ -1,10 +1,8 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +22,12 @@ public class HabitLog {
     private LocalDateTime completedDate;
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name="habit_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Habit habit;
+    @Column(name="notes")
+    private String notes;
 
 
 
