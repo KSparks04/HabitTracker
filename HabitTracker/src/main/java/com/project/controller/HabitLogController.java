@@ -86,6 +86,13 @@ public class HabitLogController {
         habitLogService.toggleLogForDate(userEmail,habitId,date);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/api/habits/logs/notes/{habitId}/find")
+    public ResponseEntity<HabitLogDto> getHabitLogNotes(Principal principal, @PathVariable Long habitId, @RequestParam String date){
+        String userEmail = principal.getName();
+        HabitLogDto habitLogDto = habitLogService.getHabitLogByDate(userEmail,habitId,date);
+
+        return new ResponseEntity<>(habitLogDto,HttpStatus.OK);
+    }
     @PostMapping("/api/habits/logs/notes")
     public ResponseEntity<Void> addNotes(Principal principal, @RequestBody HabitLogDto habitLogDto){
         String userEmail = principal.getName();

@@ -203,6 +203,40 @@ public class HabitLogService {
         return responseDtos;
 
     }
+    public HabitLogDto getHabitLogByDate(String userEmail,Long habitId,String dateString){
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User does not exist"));
+        Habit habit = habitRepository.findById(habitId).orElseThrow(()->new RuntimeException("Habit not found with id: " + habitId));
+
+        if (!habit.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized to modify this habit");
+        }
+        System.out.println(habitId);
+
+        LocalDate localDate = LocalDate.parse(dateString);
+
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime nextDay = localDate.plusDays(1).atStartOfDay();
+        Optional<HabitLog> existingLog =
+                habitLogRepository.findLogForDate(
+                        habitId,
+                        startOfDay,
+                        nextDay
+                );
+
+
+        if (existingLog.isPresent()) {
+            HabitLog habitLog = existingLog.get();
+            HabitLogDto logDto = new HabitLogDto();
+            logDto.setNote(habitLog.getNotes());
+            return logDto;
+
+        }
+        HabitLogDto  habitLogDto = new HabitLogDto();
+        habitLogDto.setError("NO LOG FOR DATE");
+        return habitLogDto;
+
+    }
 
     public int calculateDaysOutofWeeks(Long habitDtoId){
         List<HabitLog> logs =
@@ -277,6 +311,7 @@ public class HabitLogService {
 
         LocalDate today = LocalDate.now();
         LocalDate expectedDate = dates.get(0);
+//        System.out.println(expectedDate.toString());
         if (expectedDate.isBefore(today)) {
             if (!expectedDate.equals(today.minusDays(1))) {
                 return 0;

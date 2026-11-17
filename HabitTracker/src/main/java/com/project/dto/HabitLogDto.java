@@ -24,4 +24,5 @@ public class HabitLogDto {
     private String note;
     private Integer currentStreak;
     private Integer longestStreak;
+    private String error;
 }
