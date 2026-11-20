@@ -7,15 +7,15 @@ export const AuthProvider=({children})=>{
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        if (token && isTokenExpired(token)) {
-            localStorage.removeItem("token");
-            setUser(null);
-        }
-        setLoading(false);
-    }, []);
+    // useEffect(() => {
+    //     const token = localStorage.getItem("token");
+    //
+    //     if (token && isTokenExpired(token)) {
+    //         localStorage.removeItem("token");
+    //         setUser(null);
+    //     }
+    //     setLoading(false);
+    // }, []);
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         const token = localStorage.getItem("token");

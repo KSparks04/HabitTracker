@@ -165,7 +165,7 @@ export function RecentHabits(){
             )}
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Weekly Habits</h2>
+                    <h2 className="text-xl font-bold text-black">Weekly Habits</h2>
                     <p className="text-sm text-slate-400">
                         Week of {format(startOfCurrentWeek, 'MMM d, yyyy')}
                     </p>
@@ -181,7 +181,7 @@ export function RecentHabits(){
                     <div key={habit.id} className=" bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-lg backdrop-blur">
 
                         <div className="flex justify-between items-center mb-3">
-                            <h3 className="font-semibold text-slate-200">{habit.title}</h3>
+                            <h3 className="font-semibold text-bg">{habit.title}</h3>
                             <div className="flex items-center space-x-1 text-amber-400 text-xs font-semibold bg-amber-400/10 px-2.5 py-1 rounded-md">
                                 <Flame size={14} className="fill-amber-400" />
                                 <span>{habit.streak} day streak</span>

@@ -39,8 +39,8 @@ function App() {
             />
             <Route path="/register" element={!user ? <RegisterPage /> : <Navigate to="/" />} />
             <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
-            <Route path="/my-stats" element={<StatsPage />} />
-            <Route path={"/my-habits"} element={<MyHabitsPage />} />
+            <Route path="/my-stats" element={user ?<StatsPage />:<Navigate to={"/"}/>} />
+            <Route path={"/my-habits"} element={user ? <MyHabitsPage />: <Navigate to={"/"}/>} />
         </Routes>
 
     </>

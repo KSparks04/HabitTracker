@@ -1,6 +1,8 @@
 .nav-elem{
     color:black;
+
 }
 .nav-elem:hover{
-    color:var(--text);
+
+    transform: scale(1.05);
 }

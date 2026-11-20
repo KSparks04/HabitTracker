@@ -80,31 +80,35 @@ export function RegisterPage(){
 
     }
     return(
-        <div>
-            <h3>Register</h3>
-            <form onSubmit={handleSubmit} >
-                <label>Username <input type={"text"}value={userData.username} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
+        <div className={"flex flex-col justify-center items-center "}>
+
+            <form onSubmit={handleSubmit} className={"form-login mt-2 bg-surface shadow-md max-w-md md:max-w-lg w-full rounded-lg p-4 flex flex-col items-center"}>
+                <h3 className={"text-black font-bold text-xl"}>Register</h3>
+                <div className={"flex flex-col justify-center items-center w-60 gap-2 mt-3"}>
+                    <input type={"text"}value={userData.username} placeholder={"YourUsername"} className={"rounded-lg border border-b-text-muted border-[1.5px] w-full px-3.5"} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
                     ...userData,
                     username: e.target.value
                 })}></input>
                     {errors.username && (<p className={"error-p text-red-500 text-xs italic"}>{errors.username}</p>)}
-                </label>
-                <label>Email <input type={"text"}value={userData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
-                    ...userData,
-                    email: e.target.value
-                })}></input>
+
+                    <input type={"text"}value={userData.email} placeholder={"youremail@company.com"} className={"rounded-lg border border-b-text-muted border-[1.5px]  w-full px-3.5"}  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
+                        ...userData,
+                        email: e.target.value
+                    })}></input>
                     {errors.email && (<p className={"error-p text-red-500 text-xs italic"}>{errors.email}</p>)}
-                </label>
-                <label>Password <input type={"password"}value={userData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
-                    ...userData,
-                    password: e.target.value
-                })}></input>
-                    {errors.password && (<p className={"error-p text-red-500 text-xs italic"}>{errors.password}</p>)}
-                </label>
-                <button type="submit">Register</button>
+
+                    <input type={"password"}value={userData.password} placeholder={"Password"} className={"rounded-lg border border-b-text-muted border-[1.5px]  w-full px-3.5"} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserData({
+                        ...userData,
+                        password: e.target.value
+                    })}></input>
+                        {errors.password && (<p className={"error-p text-red-500 text-xs italic"}>{errors.password}</p>)}
+
+                </div>
+
+                <button type="submit" className={"text-black font-semibold bg-accent hover:bg-lavender p-2 rounded-lg mt-3 w-30"}>Register</button>
             </form>
             <NavLink to={"/login"}>
-                <p>Already have an account? Log in</p>
+                <p className={"text-black"}>Already have an account? Log in</p>
             </NavLink>
         </div>
     )

@@ -3,11 +3,16 @@
     --color-primary: #7C3AED;
     --color-primary-hover: #6D28D9;
     --color-accent: #EDE9FE;
+    --color-off-purple: rgb(247, 247, 255);
     --color-bg: #F8FAFC;
     --color-surface: #FFFFFF;
     --color-text-main: #1E293B;
     --color-text-muted: #64748B;
     --color-success: #10B981;
+    --color-button: #5038ba;
+    --color-button-hover: rgba(80, 56, 186, 0.88);
+    --color-lilac:#845cbc;
+    --color-lavender:#ebe0ff;
 }
 :root {
     --color-primary: #7C3AED;
@@ -86,18 +91,15 @@ body {
 
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
+
 
 
 p {
   margin: 0;
 }
-
+.my-habit-icon:hover{
+    color:var(--color-primary-hover);
+}
 code,
 .counter {
   font-family: var(--mono);
