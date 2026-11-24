@@ -1,9 +1,11 @@
 package com.project.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.dto.HabitLogDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,6 +30,11 @@ public class HabitLog {
     private Habit habit;
     @Column(name="notes")
     private String notes;
+    public HabitLog(Habit habit, String notes, LocalDateTime completedDate) {
+        this.habit = habit;
+        this.notes = notes;
+        this.completedDate = completedDate;
+    }
 
 
 

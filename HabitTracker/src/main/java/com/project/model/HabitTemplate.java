@@ -25,6 +25,12 @@ public class HabitTemplate {
     private String iconName;
     @Column(name="default_frequency",nullable = false)
     private String default_frequency;
+    public HabitTemplate(String title, String category, String iconName, String default_frequency) {
+        this.title = title;
+        this.category = category;
+        this.iconName = iconName;
+        this.default_frequency = default_frequency;
+    }
     public void setId(Long id) {
         this.id = id;
     }

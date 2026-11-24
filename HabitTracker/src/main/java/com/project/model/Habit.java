@@ -39,6 +39,14 @@ public class Habit {
     @JoinColumn(name="user_id", nullable = false)
     @JsonIgnore
     private User user;
+    public Habit(String title, String iconName, String frequency, String notes, Boolean saved, String color) {
+        this.title = title;
+        this.iconName = iconName;
+        this.frequency = frequency;
+        this.notes = notes;
+        this.saved = saved;
+        this.color = color;
+    }
     public void setId(Long id) {
         this.id = id;
     }
