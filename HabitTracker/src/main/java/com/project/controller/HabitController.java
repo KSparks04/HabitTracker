@@ -4,6 +4,7 @@ import com.project.dto.HabitDto;
 import com.project.model.Habit;
 import com.project.repository.HabitRepository;
 import com.project.service.HabitService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +24,13 @@ public class HabitController {
     public ResponseEntity<List<HabitDto>> getUserHabits(Principal principal) {
         String userEmail = principal.getName();
         List<HabitDto> habits = habitService.getHabitsForUser(userEmail);
+        if(habits.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return  new ResponseEntity<>(habits, HttpStatus.OK);
     }
     @PostMapping("/api/habits")
-    public ResponseEntity<HabitDto> createUserHabit(@RequestBody HabitDto habitDto, Principal principal) {
+    public ResponseEntity<HabitDto> createUserHabit(@Valid @RequestBody HabitDto habitDto, Principal principal) {
         String userEmail = principal.getName();
         HabitDto habit = habitService.createHabitForUser(habitDto, userEmail);
         return  new ResponseEntity<>(habit, HttpStatus.CREATED);

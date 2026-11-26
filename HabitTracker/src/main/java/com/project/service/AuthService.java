@@ -8,6 +8,7 @@ import com.project.model.User;
 import com.project.repository.UserRepository;
 import com.project.security.CustomUserDetails;
 import com.project.security.JwtTokenProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,11 +22,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class AuthService {
 
 
     private UserRepository userRepository;
-    private PasswordEncoder  passwordEncoder;
+    private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private JwtTokenProvider tokenProvider;
     public AuthService (UserRepository userRepository, PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider) {
@@ -57,6 +59,10 @@ public class AuthService {
     }
     public JwtResponse authenticateUser(LoginRequest loginRequest){
         System.out.println(loginRequest);
+        if (!userRepository.existsByEmail(loginRequest.getEmail())) {
+
+            return new JwtResponse(null,null);
+        }
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -65,7 +71,7 @@ public class AuthService {
                     )
             );
 
-            System.out.println("Authentication successful: " + authentication);
+            log.debug("Authenticated user with email: {}", loginRequest.getEmail());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.generateToken(authentication);
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
